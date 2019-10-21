@@ -28,7 +28,7 @@ In this project I applied these skills to analyze disaster data from [figure eig
 - ML Pipeline Preparation.ipynb # ML exploration
 - README.md
 ```
-In this project, I  build, evaluate, and save the data model to achieve the best data science solution for this problem,I embedded the data science solution into the web app production.
+In this project, I  build, evaluate, and save the data model to achieve the best data science solution for this problem,I deploy the data science solution to the cloud.
 
 ### Requirements
 * flask
