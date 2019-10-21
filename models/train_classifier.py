@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import string
 import re
-impoer sys
+import sys
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -22,7 +22,7 @@ from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, AdaBoost
 from sklearn.multioutput import MultiOutputClassifier
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-
+from utils import Tokenizer, UrlExtractor, MessageLength
 
 def load_data(database_filepath):
     """
@@ -35,17 +35,12 @@ def load_data(database_filepath):
         Y -> label array values
         
     """
-    engine = create_engine('sqlite:///'+database_حشفا)
+    engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table("messages", con = engine)
     X = df['message']
     Y = df.iloc[:, 4:]
     category_names = Y.columns.tolist()
-    return X,Y, categories
-    
-
-
-def tokenize(text):
-    pass
+    return X,Y, category_names
 
 
 def build_model():
@@ -125,7 +120,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
     print("\nBest Parameters: ", model.best_params_)
 
 def save_model(model, model_filepath):
-   """dumps the model to the given filepath
+    """dumps the model to the given filepath
     Args:
         model -> the model which is built using the build_model function
         model_filepath (string): the filepath to save the model to
