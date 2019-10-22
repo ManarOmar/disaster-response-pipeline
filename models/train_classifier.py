@@ -22,8 +22,7 @@ from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, AdaBoost
 from sklearn.multioutput import MultiOutputClassifier
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-from utils import Tokenizer, UrlExtractor, MessageLength
-
+from utils import tokenize
 def load_data(database_filepath):
     """
     Load Data Function
@@ -50,38 +49,16 @@ def build_model():
     """
 
     pipeline = Pipeline([
-        ('features', FeatureUnion([
-
-            ('text_pipeline', Pipeline([
-                ('tokenize', Tokenizer()),
-                ('vect', CountVectorizer()),
-                ('tfidf', TfidfTransformer())
-            ])),
-
-            ('url_pipeline',Pipeline([
-                ('tokenize', Tokenizer()),
-                ('containing_url', UrlExtractor())
-                ])),
-            ('computing_message_length',MessageLength())       
-            
-        ])),
-
-        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ('tfidfvect',TfidfVectorizer(tokenizer=tokenize)),
+    ('clf', MultiOutputClassifier(AdaBoostClassifier()))
     ])
     
     parameters = {
-            'features__text_pipeline__vect__ngram_range': ((1, 1), (1, 2)),
-            'features__text_pipeline__vect__max_df': (0.5, 0.75, 1.0),
-            'features__text_pipeline__vect__max_features': (None, 5000, 10000),
-            'clf__estimator__n_estimators': [50, 100,200] ,
-            'features__transformer_weights': (
-                {'text_pipeline': 1, 'url_pipeline' : 0.5, 'computing_message_length' : 0.5}, 
-                {'text_pipeline': 0.5, 'url_pipeline' : 1,  'computing_message_length' : 1},
-                {'text_pipeline': 0.8, 'url_pipeline' : 1,  'computing_message_length' : 1})
-                 
-            
-        
-        }
+        'tfidfvect__ngram_range': ((1, 1), (1, 2)),
+        'tfidfvect__max_df': (0.5, 1.0),
+        'tfidfvect__max_features': (None, 5000),
+        'clf__estimator__n_estimators': [50, 100] 
+    }
 
     cv = GridSearchCV(pipeline, param_grid=parameters)
 
@@ -107,14 +84,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
         confusion_mat = confusion_matrix(Y_test.iloc[:,i], y_pred[:,i], labels=labels)
         accuracy = (y_pred[:,i] == Y_test.iloc[:,i]).mean()
         class_report = classification_report(Y_test.iloc[:,i], y_pred[:,i])
-        f1_sc = f1_score(Y_test.iloc[:,i], y_pred[:,i])
-        prec = precision_score(Y_test.iloc[:,i], y_pred[:,i])
 
         print("Labels:", labels)
         print("Confusion Matrix:\n", confusion_mat)
         print("Accuracy: ", accuracy)
-        print("precision: ", prec)
-        print("f1_score: ", f1_sc)
         print("\nClassification report:\n ", class_report ) 
 
     print("\nBest Parameters: ", model.best_params_)

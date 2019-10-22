@@ -11,9 +11,9 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-#from sklearn.externals import joblib
+from sklearn.externals import joblib
 from sqlalchemy import create_engine
-from models.utils import Tokenizer, UrlExtractor, MessageLength
+from models.utils import tokenize
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ engine = create_engine('sqlite:///../data/disaster.db')
 df = pd.read_sql_table('messages', engine)
 
 # load model
-#model = joblib.load("../models/clf.pkl")
+model = joblib.load("../models/clf.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
